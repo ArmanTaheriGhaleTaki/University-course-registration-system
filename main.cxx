@@ -1,8 +1,11 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <conio.h>
 #include <cstddef>
+#include <conio.h>
 int Amount_of_students = 0;
+const int tuition_per_coefficient = 1000;
 struct lession
 {
     std::string lession_name1;
@@ -36,9 +39,9 @@ void showaddstudentmenu()
     std::cout << "1. Add new lession" << std::endl;
     std::cout << "2. back to main menu" << std::endl;
 }
-void add_lession_at_end(struct infoSudent *head, struct lession *temp, int queue)
+void add_lession_at_end(struct infoSudent **head, struct lession *temp, int queue)
 {
-    infoSudent *temp1 = head;
+    infoSudent *temp1 = *head;
     for (int i = 0; i < queue; i++)
     {
         temp1 = temp1->next;
@@ -113,11 +116,12 @@ void showStudentinfo(struct infoSudent *head, int id)
                 std::cout << ptr->lession_list->lession_Coefficient << " ";
                 ptr->lession_list = ptr->lession_list->next;
             }
+            std::cout << std::endl;
             return;
         }
         ptr = ptr->next;
     }
-    std::cout << "student not found";
+    std::cout << "student not found\n";
 }
 bool check_id(struct infoSudent *head, int id)
 {
@@ -241,19 +245,46 @@ void edit_student_lession(struct infoSudent *head)
         std::cout << "Enter the lession id you want to delete: " << std::endl;
         int lession_id_delete;
         std::cin >> lession_id_delete;
-        // lession *temp = head->lession_list;
-        // show_lession_by_id(head->lession_list, lession_id_delete);
-        struct lession *ptr = head->lession_list;
-        while (ptr != NULL)
+        show_lession_by_id(ptr0->lession_list, lession_id_delete);
+    }
+}
+void show_student_lessions(struct infoSudent *head)
+{
+    int studentID;
+    std::cout << "enter student id" << std::endl;
+    std::cin >> studentID;
+    if (index_id(head, studentID) == -1)
+    {
+        std::cout << "student not found" << std::endl;
+        return;
+    }
+    else
+    {
+        infoSudent *ptr0;
+        ptr0 = head;
+        while (ptr0 != NULL)
         {
-            if (ptr->lession_id == lession_id_delete)
+            lession *temp = ptr0->lession_list;
+            if (ptr0->student_id == studentID)
             {
-                std::cout << ptr->lession_name1 << " ";
-                std::cout << ptr->lession_name2 << " ";
-                std::cout << ptr->lession_id << " ";
-                std::cout << ptr->lession_Coefficient << " ";
+                lession *temp = ptr0->lession_list;
+                std::cout << ptr0->student_id << "\n";
+                std::cout << ptr0->student_firstname << "\n";
+                std::cout << ptr0->student_lastname << "\n";
+                std::cout << ptr0->university_tuition << "\n";
+                std::cout << ptr0->Amount_of_lessions << "\n";
+                for (int i = 0; i < ptr0->Amount_of_lessions; i++)
+                {
+                    std::cout << std::endl;
+                    std::cout << temp->lession_name1 << " ";
+                    std::cout << temp->lession_name2 << " ";
+                    std::cout << temp->lession_id << " ";
+                    std::cout << temp->lession_Coefficient << "\n";
+                    temp = temp->next;
+                }
+                break;
             }
-            ptr = ptr->next;
+            ptr0 = ptr0->next;
         }
     }
 }
@@ -283,6 +314,48 @@ void rewrite(struct infoSudent *head)
         ptr = ptr->next;
     }
 }
+void add_new_lession(struct infoSudent *head, struct infoSudent *node)
+{
+    struct lession *temp = new lession;
+    temp->next = NULL;
+    std::cout << "Enter lession's id: ";
+    std::cin >> temp->lession_id;
+    std::cout << "Enter lession's name1: ";
+    std::cin >> temp->lession_name1;
+    std::cout << "Enter lession's name2: ";
+    std::cin >> temp->lession_name2;
+    std::cout << "Enter lession's Coefficient: ";
+    std::cin >> temp->lession_Coefficient;
+    add_lession_at_end(&head, temp, index_id(head, node->student_id));
+}
+int tuition(infoSudent head, int student_id)
+{
+    int tuition = 0;
+    infoSudent *ptr = &head;
+    while (ptr != NULL)
+    {
+        if (ptr->student_id == student_id)
+        {
+            lession *temp = ptr->lession_list;
+
+            if (temp == NULL)
+            {
+                return 0;
+            }
+            else
+            {
+                while (temp != NULL)
+                {
+                    tuition += temp->lession_Coefficient * tuition_per_coefficient;
+                    temp = temp->next;
+                }
+            }
+            return tuition;
+        }
+        ptr = ptr->next;
+    }
+    return tuition;
+}
 void add_new_student(struct infoSudent **head)
 {
     struct infoSudent *temp = new infoSudent;
@@ -290,21 +363,29 @@ void add_new_student(struct infoSudent **head)
     temp->lession_list = NULL;
     std::cout << "Enter student's id: ";
     std::cin >> temp->student_id;
-    if (check_id == 0)
+    if (check_id(*head, temp->student_id) == 0)
     {
         std::cout << "Enter student's firstname: ";
         std::cin >> temp->student_firstname;
         std::cout << "Enter student's lastname: ";
         std::cin >> temp->student_lastname;
-        std::cout << "Enter student's university tuition: ";
-        std::cin >> temp->university_tuition;
+        temp->university_tuition = tuition(**head, temp->student_id);
         std::cout << "Enter student's Amount of lessions: ";
         std::cin >> temp->Amount_of_lessions;
         add_sudent_at_end(head, temp);
         Amount_of_students++;
         rewrite(*head);
-        showaddstudentmenu();
-        // add_new_lession(head);
+        int choice = 0;
+        while (choice != 2)
+        {
+            showaddstudentmenu();
+            std::cin >> choice;
+            if (choice == 1)
+            {
+                add_new_lession(*head, temp);
+                rewrite(*head);
+            }
+        }
     }
     else
     {
@@ -344,53 +425,31 @@ int main()
             studentsFile >> temp->lession_name2;
             studentsFile >> temp->lession_id;
             studentsFile >> temp->lession_Coefficient;
-            add_lession_at_end(Head, temp, queue);
+            add_lession_at_end(&Head, temp, queue);
         }
     }
-    showmainmenu();
-    int choice;
-    rewrite(Head);
-    std::cin >> choice;
-    switch (choice)
+    int choice = 0;
+    while (choice != 4)
     {
-    case 1:
-        add_new_student(&Head);
-        break;
-    case 2:
-        edit_student_lession(Head);
-        break;
-    case 3:
-
-        break;
-    case 4:
-
-        break;
+        showmainmenu();
+        std::cin >> choice;
+        switch (choice)
+        {
+        case 1:
+            add_new_student(&Head);
+            break;
+        case 2:
+            edit_student_lession(Head);
+            break;
+        case 3:
+            std::cout << "Enter student's id: \n";
+            int id;
+            std::cin >> id;
+            showStudentinfo(Head, id);
+            getch();
+            break;
+        case 4:
+            return 0;
+        }
     }
 }
-// void rewrite(struct infoSudent *head)
-// {
-//     std::ofstream outfile;
-//     outfile.open("student.txt");
-//     struct infoSudent *ptr = head;
-//     while (ptr != NULL)
-//     {
-//         outfile << Amount_of_students;
-//         outfile << ptr->student_id << "\n";
-//         outfile << ptr->student_firstname << "\n";
-//         outfile << ptr->student_lastname << "\n";
-//         outfile << ptr->university_tuition << "\n";
-//         outfile << ptr->Amount_of_lessions << "\n";
-//         for (int i = 0; i < ptr->Amount_of_lessions; i++)
-//         {
-//             lession *temp = ptr->lession_list;
-//             outfile << std::endl;
-//             outfile << temp->lession_name1 << " ";
-//             outfile << temp->lession_name2 << " ";
-//             outfile << temp->lession_id << " ";
-//             outfile << temp->lession_Coefficient << " ";
-//             temp = temp->next;
-//         }
-//         ptr = ptr->next;
-//     }
-//     outfile.close();
-// }
