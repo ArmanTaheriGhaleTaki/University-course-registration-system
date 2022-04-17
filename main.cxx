@@ -218,6 +218,7 @@ void delete_lession_by_id(struct lession **head_ref, int id)
     prev->next = temp->next;
     free(temp);
 }
+
 void shows_student_lessions(struct infoSudent **head, int id)
 {
     struct infoSudent *ptr;
@@ -281,6 +282,20 @@ void show_lession_by_id(struct lession *lessionw, int lession_id)
 
     std::cout << "lession id is not valid" << std::endl;
 }
+void add_new_lession(struct infoSudent *head, struct infoSudent *node)
+{
+    struct lession *temp = new lession;
+    temp->next = NULL;
+    std::cout << "Enter lession's id: ";
+    std::cin >> temp->lession_id;
+    std::cout << "Enter lession's name1: ";
+    std::cin >> temp->lession_name1;
+    std::cout << "Enter lession's name2: ";
+    std::cin >> temp->lession_name2;
+    std::cout << "Enter lession's Coefficient: ";
+    std::cin >> temp->lession_Coefficient;
+    add_lession_at_end(&head, temp, index_id(head, node->student_id));
+}
 void edit_student_lession(struct infoSudent *head)
 {
     int studentID;
@@ -319,178 +334,180 @@ void edit_student_lession(struct infoSudent *head)
             }
             ptr0 = ptr0->next;
         }
-        std::cout << "Enter the lession id you want to delete: " << std::endl;
-        int lession_id_delete;
-        std::cin >> lession_id_delete;
-        show_lession_by_id(ptr0->lession_list, lession_id_delete);
-        bool confirm = false;
-        std::cout << "\nAre you sure you want to delete this lession?" << std::endl;
-        std::cout << "1. Yes" << std::endl;
-        std::cout << "2. No" << std::endl;
-        std::cin >> confirm;
-        if (confirm == 1)
+        int choice = 0;
+        while (choice != 3)
         {
-            delete_lession_by_id(&ptr0->lession_list, lession_id_delete);
-            ptr0->Amount_of_lessions--;
-            ptr0->university_tuition = tuition(*head, studentID);
-            rewrite(head);
-        }
-        else
-        {
-            return;
-        }
-    }
-}
-void show_student_lessions(struct infoSudent *head)
-{
-    int studentID;
-    std::cout << "enter student id" << std::endl;
-    std::cin >> studentID;
-    if (index_id(head, studentID) == -1)
-    {
-        std::cout << "student not found" << std::endl;
-        return;
-    }
-    else
-    {
-        infoSudent *ptr0;
-        ptr0 = head;
-        while (ptr0 != NULL)
-        {
-            lession *temp = ptr0->lession_list;
-            if (ptr0->student_id == studentID)
+            std::cout << "1. delete lession \n";
+            std::cout << "2. add lession \n";
+            std::cout << "3. back to menu \n";
+            std::cin >> choice;
+            switch (choice)
             {
-                lession *temp = ptr0->lession_list;
-                std::cout << ptr0->student_id << "\n";
-                std::cout << ptr0->student_firstname << "\n";
-                std::cout << ptr0->student_lastname << "\n";
-                std::cout << ptr0->university_tuition << "\n";
-                std::cout << ptr0->Amount_of_lessions << "\n";
-                for (int i = 0; i < ptr0->Amount_of_lessions; i++)
+            case 1:
+            {
+                std::cout << "Enter the lession id you want to delete: " << std::endl;
+                int lession_id_delete;
+                std::cin >> lession_id_delete;
+                show_lession_by_id(ptr0->lession_list, lession_id_delete);
+                bool confirm = false;
+                std::cout << "\nAre you sure you want to delete this lession?" << std::endl;
+                std::cout << "1. Yes" << std::endl;
+                std::cout << "2. No" << std::endl;
+                std::cin >> confirm;
+                if (confirm == 1)
                 {
-                    std::cout << std::endl;
-                    std::cout << temp->lession_name1 << " ";
-                    std::cout << temp->lession_name2 << " ";
-                    std::cout << temp->lession_id << " ";
-                    std::cout << temp->lession_Coefficient << "\n";
-                    temp = temp->next;
+                    delete_lession_by_id(&ptr0->lession_list, lession_id_delete);
+                    ptr0->Amount_of_lessions--;
+                    ptr0->university_tuition = tuition(*head, studentID);
+                    rewrite(head);
                 }
                 break;
             }
-            ptr0 = ptr0->next;
-        }
-    }
-}
-void add_new_lession(struct infoSudent *head, struct infoSudent *node)
-{
-    struct lession *temp = new lession;
-    temp->next = NULL;
-    std::cout << "Enter lession's id: ";
-    std::cin >> temp->lession_id;
-    std::cout << "Enter lession's name1: ";
-    std::cin >> temp->lession_name1;
-    std::cout << "Enter lession's name2: ";
-    std::cin >> temp->lession_name2;
-    std::cout << "Enter lession's Coefficient: ";
-    std::cin >> temp->lession_Coefficient;
-    add_lession_at_end(&head, temp, index_id(head, node->student_id));
-}
-void add_new_student(struct infoSudent **head)
-{
-    struct infoSudent *temp = new infoSudent;
-    temp->next = NULL;
-    temp->lession_list = NULL;
-    std::cout << "Enter student's id: ";
-    std::cin >> temp->student_id;
-    if (check_id(*head, temp->student_id) == 0)
-    {
-        std::cout << "Enter student's firstname: ";
-        std::cin >> temp->student_firstname;
-        std::cout << "Enter student's lastname: ";
-        std::cin >> temp->student_lastname;
-        temp->university_tuition = tuition(**head, temp->student_id);
-        temp->Amount_of_lessions = 0;
-        add_sudent_at_end(head, temp);
-        rewrite(*head);
-        int choice = 0;
-        while (choice != 2)
-        {
-            showaddstudentmenu();
-            std::cin >> choice;
-            if (choice == 1)
+            case 2:
             {
-                add_new_lession(*head, temp);
-                temp->university_tuition = tuition(**head, temp->student_id);
-                rewrite(*head);
+                add_new_lession(head, ptr0);
+                ptr0->university_tuition = tuition(*head, ptr0->student_id);
+                rewrite(head);
+                break;
+            }
+            case 3:
+            {
+                break;
+            }
             }
         }
     }
-    else
-    {
-        std::cout << "student already exist" << std::endl;
-    }
 }
-// add_new_lession(structhead)
-// {
-//     struct lession *temp = new lession;
-//     temp->next = NULL;
-//     std::cout << "Enter lession's id: ";
+    void show_student_lessions(struct infoSudent * head)
+    {
+        int studentID;
+        std::cout << "enter student id" << std::endl;
+        std::cin >> studentID;
+        if (index_id(head, studentID) == -1)
+        {
+            std::cout << "student not found" << std::endl;
+            return;
+        }
+        else
+        {
+            infoSudent *ptr0;
+            ptr0 = head;
+            while (ptr0 != NULL)
+            {
+                lession *temp = ptr0->lession_list;
+                if (ptr0->student_id == studentID)
+                {
+                    lession *temp = ptr0->lession_list;
+                    std::cout << ptr0->student_id << "\n";
+                    std::cout << ptr0->student_firstname << "\n";
+                    std::cout << ptr0->student_lastname << "\n";
+                    std::cout << ptr0->university_tuition << "\n";
+                    std::cout << ptr0->Amount_of_lessions << "\n";
+                    for (int i = 0; i < ptr0->Amount_of_lessions; i++)
+                    {
+                        std::cout << std::endl;
+                        std::cout << temp->lession_name1 << " ";
+                        std::cout << temp->lession_name2 << " ";
+                        std::cout << temp->lession_id << " ";
+                        std::cout << temp->lession_Coefficient << "\n";
+                        temp = temp->next;
+                    }
+                    break;
+                }
+                ptr0 = ptr0->next;
+            }
+        }
+    }
 
-// }
-infoSudent *Head;
-int main()
-{
-    std::ifstream studentsFile("students.txt");
-    studentsFile >> Amount_of_students;
-    Head = NULL;
-    int temp_Amount_of_students = Amount_of_students;
-    for (int queue = 0; queue < temp_Amount_of_students; queue++)
+    void add_new_student(struct infoSudent * *head)
     {
-        infoSudent *student_temp = new infoSudent;
-        student_temp->next = NULL;
-        student_temp->lession_list = NULL;
-        studentsFile >> student_temp->student_id;
-        studentsFile >> student_temp->student_firstname;
-        studentsFile >> student_temp->student_lastname;
-        studentsFile >> student_temp->university_tuition;
-        studentsFile >> student_temp->Amount_of_lessions;
-        int temp = student_temp->Amount_of_lessions;
-        student_temp->Amount_of_lessions = 0;
-        add_sudent_at_end(&Head, student_temp);
-        for (int i = 0; i < temp; i++)
+        struct infoSudent *temp = new infoSudent;
+        temp->next = NULL;
+        temp->lession_list = NULL;
+        std::cout << "Enter student's id: ";
+        std::cin >> temp->student_id;
+        if (check_id(*head, temp->student_id) == 0)
         {
-            lession *temp = new lession;
-            temp->next = 0;
-            studentsFile >> temp->lession_name1;
-            studentsFile >> temp->lession_name2;
-            studentsFile >> temp->lession_id;
-            studentsFile >> temp->lession_Coefficient;
-            add_lession_at_end(&Head, temp, queue);
+            std::cout << "Enter student's firstname: ";
+            std::cin >> temp->student_firstname;
+            std::cout << "Enter student's lastname: ";
+            std::cin >> temp->student_lastname;
+            temp->university_tuition = tuition(**head, temp->student_id);
+            temp->Amount_of_lessions = 0;
+            add_sudent_at_end(head, temp);
+            rewrite(*head);
+            int choice = 0;
+            while (choice != 2)
+            {
+                showaddstudentmenu();
+                std::cin >> choice;
+                if (choice == 1)
+                {
+                    add_new_lession(*head, temp);
+                    temp->university_tuition = tuition(**head, temp->student_id);
+                    rewrite(*head);
+                }
+            }
+        }
+        else
+        {
+            std::cout << "student already exist" << std::endl;
         }
     }
-    Amount_of_students -= temp_Amount_of_students;
-    int choice = 0;
-    while (choice != 4)
+    infoSudent *Head;
+    int main()
     {
-        showmainmenu();
-        std::cin >> choice;
-        switch (choice)
+        std::ifstream studentsFile("students.txt");
+        studentsFile >> Amount_of_students;
+        Head = NULL;
+        int temp_Amount_of_students = Amount_of_students;
+        for (int queue = 0; queue < temp_Amount_of_students; queue++)
         {
-        case 1:
-            add_new_student(&Head);
-            break;
-        case 2:
-            edit_student_lession(Head);
-            break;
-        case 3:
-            std::cout << "Enter student's id: \n";
-            int id;
-            std::cin >> id;
-            showStudentinfo(Head, id);
-            getch();
-            break;
-        case 4:
-            return 0;
+            infoSudent *student_temp = new infoSudent;
+            student_temp->next = NULL;
+            student_temp->lession_list = NULL;
+            studentsFile >> student_temp->student_id;
+            studentsFile >> student_temp->student_firstname;
+            studentsFile >> student_temp->student_lastname;
+            studentsFile >> student_temp->university_tuition;
+            studentsFile >> student_temp->Amount_of_lessions;
+            int temp = student_temp->Amount_of_lessions;
+            student_temp->Amount_of_lessions = 0;
+            add_sudent_at_end(&Head, student_temp);
+            for (int i = 0; i < temp; i++)
+            {
+                lession *temp = new lession;
+                temp->next = 0;
+                studentsFile >> temp->lession_name1;
+                studentsFile >> temp->lession_name2;
+                studentsFile >> temp->lession_id;
+                studentsFile >> temp->lession_Coefficient;
+                add_lession_at_end(&Head, temp, queue);
+            }
+        }
+        Amount_of_students -= temp_Amount_of_students;
+        int choice = 0;
+        while (choice != 4)
+        {
+            showmainmenu();
+            std::cin >> choice;
+            switch (choice)
+            {
+            case 1:
+                add_new_student(&Head);
+                break;
+            case 2:
+                edit_student_lession(Head);
+                break;
+            case 3:
+                std::cout << "Enter student's id: \n";
+                int id;
+                std::cin >> id;
+                showStudentinfo(Head, id);
+                getch();
+                break;
+            case 4:
+                return 0;
+            }
         }
     }
-}
