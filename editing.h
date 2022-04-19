@@ -179,8 +179,9 @@ void add_new_lession(struct infoStudent *head, struct infoStudent *node)
     std::cout << "Enter lession's id: ";
     std::cin >> temp->lession_id;
     std::cout << "Enter lession's : ";
+    std::cin.ignore();
     getline(std::cin, temp->lession_name1);
-    temp->lession_name2="";
+    temp->lession_name2 = "";
     std::cout << "Enter lession's Coefficient: ";
     std::cin >> temp->lession_Coefficient;
     add_lession_at_end(&head, temp, index_id(head, node->student_id));
