@@ -42,6 +42,7 @@ int main()
     int choice = 0;
     while (choice != 4)
     {
+        system("cls");
         showmainmenu();
         std::cin >> choice;
         switch (choice)
